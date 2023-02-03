@@ -62,7 +62,7 @@ export default function Account({ session }) {
 
   const stravaAuthHandler = () => {
     const clientId = '93865';
-    const redirectUri = 'http://localhost:3001/api/auth';
+    const redirectUri = 'http://localhost:3002/api/auth';
     const scope = 'read,activity:read_all,activity:write'; // a space-separated list of scopes your app is requesting
     const state = 'STATE'; // a value that you generate and that will be returned to you after authorization
     const authorizationUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;

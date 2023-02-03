@@ -1,4 +1,3 @@
-import db from "../../lib/db";
 import { convertWindDirection, convertWeatherDescription, getWeather, getWeatherIcon } from "../../lib/weatherUtils";
 import { fetchStravaActivity, updateStravaTokens } from "../../lib/stravaUtils";
 
@@ -79,11 +78,6 @@ export default async function handler(req, res) {
   else {
     console.log("Not a POST request")
     // Handle any other HTTP method
-    db.collection('error_data')
-      .doc('dVO9Otfq4yBAdR4dkHBU')
-      .update({
-        error: currentDate,
-      })
     return res.status(400).json({ message: currentDate });
   }
 
