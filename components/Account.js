@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { fetchStravaAthlete, deauthorizeAthlete } from '../lib/stravaUtils'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 
 export default function Account({ session }) {
@@ -7,6 +8,8 @@ export default function Account({ session }) {
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState(null)
   const [units, setUnits] = useState(null)
+  const [accessToken, setAccessToken] = useState(null)
+  const [stravaAccount, setStravaAccount] = useState(null)
 
   useEffect(() => {
     getProfile()
@@ -18,17 +21,21 @@ export default function Account({ session }) {
 
       let { data, error, status } = await supabase
         .from('profiles')
-        .select(`username, units`)
+        .select()
         .eq('id', user.id)
-        .single()
 
       if (error && status !== 406) {
         throw error
       }
-
-      if (data) {
-        setUsername(data.username)
-        setUnits(data.units)
+      console.log(data[0])
+      // Put data where it belongs
+      if (data[0].strava_owner_id) {
+        // Get Athlete profile from Strava
+        let athlete = await fetchStravaAthlete(data[0].strava_access_token)
+        setUsername(data[0].username)
+        setUnits(data[0].units)
+        setAccessToken(data[0].strava_access_token)
+        { athlete ? setStravaAccount(athlete) : setStravaAccount(null) }
       }
     } catch (error) {
       alert('Error loading user data!')
@@ -62,11 +69,15 @@ export default function Account({ session }) {
 
   const stravaAuthHandler = () => {
     const clientId = '93865';
-    const redirectUri = 'http://localhost:3004/api/auth';
+    const redirectUri = 'http://localhost:3006/api/auth';
     const scope = 'read,activity:read_all,activity:write'; // a space-separated list of scopes your app is requesting
     const state = 'STATE'; // a value that you generate and that will be returned to you after authorization
     const authorizationUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
     window.location.replace(authorizationUrl);
+  }
+
+  async function stravaDeauthHandler () {
+    deauthorizeAthlete(accessToken, stravaAccount.id)
   }
 
   return (
@@ -79,14 +90,24 @@ export default function Account({ session }) {
       </div>
 
       <div>
-       {/* Connect Strava Account Button */}
-      <button
-        onClick={stravaAuthHandler}
-        type="button"
-        className="inline-flex items-center rounded-md border border-transparent bg-orange-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
-        Connect to Strava
-      </button>
+        {/* Connect Strava Account if not in DB*/}
+        {stravaAccount ?
+          <div>
+            <div className="inline-flex items-center rounded-md border text-md font-medium text-orange-700">
+              Connected to Strava as {stravaAccount.firstname} {stravaAccount.lastname}!
+          </div>
+            <button onClick={stravaDeauthHandler} type="button">Not you? Disconnect</button>
+          </div>
+          :
+          (
+            <button
+              onClick={stravaAuthHandler}
+              type="button"
+              className="inline-flex items-center rounded-md border border-transparent bg-orange-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              Connect to Strava
+            </button>
+          )}
       </div>
 
       <div className="sm:col-span-4">
@@ -147,7 +168,7 @@ export default function Account({ session }) {
 
       </div>
       <div className="pt-5">
-        <div className="flex justify-end">         
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={() => supabase.auth.signOut()}
@@ -155,7 +176,7 @@ export default function Account({ session }) {
           >
             Sign Out
             </button>
-            <button
+          <button
             className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
             onClick={() => updateProfile({ username, units })}
             disabled={loading}
