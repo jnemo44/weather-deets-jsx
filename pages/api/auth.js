@@ -23,20 +23,20 @@ export default async function handler(req, res) {
   //If you have a code do the post request to strava for keys
   let stravaData = await exchangeAuthCode(code)
 
-  if (req.query?.error) {
-    // Process a POST request
-    console.log("Error")
-  } else {
-    // Update user profile with code,state,scope from query 
-    const error = await supabase
-      .from('profiles')
-      .update({ code, state, scope, 'strava_owner_id': stravaData.athlete.id, 'strava_access_token': stravaData.accessToken, 'strava_refresh_token': stravaData.refreshToken })
-      .eq('id', session.user.id)
+  // Update user profile with code,state,scope from query 
+  const { error } = await supabase
+    .from('profiles')
+    .update({ code, state, scope, 'strava_owner_id': stravaData.athlete.id, 'strava_access_token': stravaData.accessToken, 'strava_refresh_token': stravaData.refreshToken })
+    .eq('id', session.user.id)
 
-    console.log(error)
+  if (error) {
+    return res.status(401).json({
+      error: 'not_authenticated',
+      description: 'Error occured adding user to server',
+    })
   }
 
-  // Store Code in DB and set a flag or something that lets the app know I'm connected for this user!
+  // Redirect to index auth complete!
   res.writeHead(302, { Location: '/' });
   res.end();
 

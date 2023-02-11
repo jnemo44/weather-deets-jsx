@@ -78,6 +78,7 @@ export default function Account({ session }) {
 
   async function stravaDeauthHandler () {
     deauthorizeAthlete(accessToken, stravaAccount.id)
+    setStravaAccount(null)
   }
 
   return (
