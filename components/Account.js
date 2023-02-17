@@ -27,7 +27,6 @@ export default function Account({ session }) {
       if (error && status !== 406) {
         throw error
       }
-      console.log(data[0])
       // Put data where it belongs
       if (data[0].strava_owner_id) {
         // Get Athlete profile from Strava
@@ -76,7 +75,7 @@ export default function Account({ session }) {
     window.location.replace(authorizationUrl);
   }
 
-  async function stravaDeauthHandler () {
+  async function stravaDeauthHandler() {
     deauthorizeAthlete(accessToken, stravaAccount.id)
     setStravaAccount(null)
   }
@@ -84,21 +83,27 @@ export default function Account({ session }) {
   return (
     <div className="flex-col space-y-4 mt-4">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Profile</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          Edit app settings below
+        <h1 className="text-lg font-medium">Profile</h1>
+        <p className="mt-1 text-sm">
+          Edit account settings below
         </p>
       </div>
 
       <div>
         {/* Connect Strava Account if not in DB*/}
         {stravaAccount ?
-          <div>
-            <div className="inline-flex items-center rounded-md border text-md font-medium text-orange-700">
-              Connected to Strava as {stravaAccount.firstname} {stravaAccount.lastname}!
+          //<div className="flex-col">
+          <div className="card card-side card-compact bg-base-100 shadow-lg">
+            <figure><img className="mask mask-circle" src={stravaAccount.profile} alt="Athlete" /></figure>
+            <div className="card-body">
+              <h2 className="card-title">Hello {stravaAccount.firstname}!</h2>
+              <p>You are connected to Strava as {stravaAccount.firstname} {stravaAccount.lastname}!</p>
+              <div className="card-actions justify-end">
+                <button className="btn btn-error btn-sm" onClick={stravaDeauthHandler}>Disconnect</button>
+              </div>
+            </div>
           </div>
-            <button onClick={stravaDeauthHandler} type="button">Not you? Disconnect</button>
-          </div>
+          //</div>
           :
           (
             <button
@@ -111,57 +116,60 @@ export default function Account({ session }) {
           )}
       </div>
 
-      <div className="sm:col-span-4">
-        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-          Username
-        </label>
-        <div className="mt-1 flex rounded-md shadow-sm">
+      <div className="form-control space-y-4">
+        <div className="form-control w-full max-w-xs">
+          <label className="label">
+            <span className="label-text">Email Address</span>
+          </label>
           <input
-            type="text"
-            name="username"
-            id="username"
-            autoComplete="username"
-            value={username || ''}
-            onChange={(e) => setUsername(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm"
-          />
-        </div>
-      </div>
-
-      <div className="sm:col-span-4">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email address
-        </label>
-        <div className="mt-1">
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
             value={session.user.email}
             disabled
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm"
-          />
+            className="input input-bordered w-full max-w-xs" />
         </div>
-      </div>
 
-      <div className="sm:col-span-3">
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-          Units
-        </label>
-        <div className="mt-1">
+        <div className="form-control w-full max-w-xs">
+          <label className="label">
+            <span className="label-text">Username</span>
+          </label>
+          <input
+            value={username || ''}
+            onChange={(e) => setUsername(e.target.value)}
+            className="input input-bordered w-full max-w-xs" />
+        </div>
+
+        <div className="form-control w-full max-w-xs">
+          <label className="label">
+            <span className="label-text">Select desired display units...</span>
+            {/* <span className="label-text-alt">Alt label</span> */}
+          </label>
           <select
             id="unit"
             name="unit"
-            autoComplete="unit-name"
+            className="select select-bordered"
             value={units || ''}
-            onChange={(e) => setUnits(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm"
-          >
-            <option>Imperial (Fahrenheit, miles/hour)</option>
-            <option>Metric (Celsius, meters/second)</option>
-            <option>Standard (Kelvin, meters/second)</option>
+            onChange={(e) => setUnits(e.target.value)}>
+
+            <option>Fahrenheit, miles/hour</option>
+            <option>Celsius, miles/hour</option>
+            <option>Celsius, km/hour</option>
+
           </select>
+          {/* <label className="label">
+            <span className="label-text-alt">Alt label</span>
+            <span className="label-text-alt">Alt label</span>
+          </label> */}
+        </div>
+
+        <div className="flex-col pt-4">
+          <label className="label">
+            <span className="label-text">Preview Description</span>
+          </label>
+          <div>
+            🌤️ Clouds 💨 Winds from NE 10{(units == 'Fahrenheit, miles/hour') || (units == 'Celsius, miles/hour') ? 'mph' : 'kph'} gusting 13{(units == 'Fahrenheit, miles/hour') || (units == 'Celsius, miles/hour') ? 'mph' : 'kph'}
+          </div>
+          <div>
+            🌡️ Temp: 77{units == 'Fahrenheit, miles/hour' ? 'F' : 'C'}  💧 Dew Point: 55{units == 'Fahrenheit, miles/hour' ? 'F' : 'C'}  ✨ Felt Like: 75{units == 'Fahrenheit, miles/hour' ? 'F' : 'C'}
+          </div>
         </div>
       </div>
 
@@ -169,16 +177,16 @@ export default function Account({ session }) {
 
       </div>
       <div className="pt-5">
-        <div className="flex justify-end">
+        <div className="flex justify-end space-x-2">
           <button
             type="button"
             onClick={() => supabase.auth.signOut()}
-            className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+            className="btn btn-ghost border-1"
           >
             Sign Out
             </button>
           <button
-            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+            className="btn btn-success"
             onClick={() => updateProfile({ username, units })}
             disabled={loading}
           >
