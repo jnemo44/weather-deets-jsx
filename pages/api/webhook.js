@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     else {
       // If aspect_type is 'create' && run && probably some other things GET strava activity by object ID
       if (req.body.aspect_type === 'create' || req.body.aspect_type === 'update') {
-        const accessToken = await updateStravaTokens( req.body.owner_id );  
+        const {accessToken, units} = await updateStravaTokens( req.body.owner_id );  
         //const token = await db.collection('access_tokens').doc('W50yW2KWMFL2U0XJGbru').get()...token.data().access_token
         const activityData = await fetchStravaActivity(req.body.object_id, accessToken)
         // Use start time to pull weather data
@@ -42,17 +42,24 @@ export default async function handler(req, res) {
           const weather = await getWeather(activityData.start_latlng[0], activityData.start_latlng[1], time / 1000)
           //const weatherDetail = convertWeatherDescription(weather.data[0].weather[0].description)
           const weatherIcon = getWeatherIcon(weather.data[0].weather[0].id)
-          //Check to see if weather pulled succesfully
+          
+          // Convert Units if required  
+          const windSpeed = (units.includes("miles/hour") ? `${Math.round(weather.data[0].wind_speed)}mph` : `${Math.round(weather.data[0].wind_speed * 1.609)}kph`)
+          const windGust = ('wind_gust' in weather.data[0] ? units.includes("miles/hour") ? `gusting ${Math.round(weather.data[0].wind_gust)}mph` : `gusting ${Math.round(weather.data[0].wind_gust * 1.609)}kph` : '')
+          const temp = units.includes("Fahrenheit") ? `${Math.round(weather.data[0].temp)}F` : `${Math.round((weather.data[0].temp - 32) * 5 / 9)}C`
+          const dewPoint = units.includes("Fahrenheit") ? `${Math.round(weather.data[0].dew_point)}F` : `${Math.round((weather.data[0].dew_point - 32) * 5 / 9)}C`
+          const feelsLikeTemp = units.includes("Fahrenheit") ? `${Math.round(weather.data[0].dew_point)}F` : `${Math.round((weather.data[0].feels_like - 32) * 5 / 9)}C`
+
           // Form a PUT request to update the new activity with weather info
           const updateActivity = await fetch(
             `https://www.strava.com/api/v3/activities/${req.body.object_id}`,
             {
               method: 'PUT',
               headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ "description": `${weatherIcon} ${weather.data[0].weather[0].main} 💨 Winds from ${convertWindDirection(Math.round(weather.data[0].wind_deg))} ${Math.round(weather.data[0].wind_speed)}mph ${'wind_gust' in weather.data[0] ? `gusting ${Math.round(weather.data[0].wind_gust)}mph` : ''}\r🌡️ Temp: ${Math.round(weather.data[0].temp)}F  💧 Dew Point: ${Math.round(weather.data[0].dew_point)}F  ✨ Felt Like: ${Math.round(weather.data[0].feels_like)}F` }),
+              body: JSON.stringify({ "description": `${weatherIcon} ${weather.data[0].weather[0].main} 💨 Winds from ${convertWindDirection(Math.round(weather.data[0].wind_deg))} ${windSpeed} ${windGust}\r🌡️ Temp: ${temp}  💧 Dew Point: ${dewPoint}  ✨ Felt Like: ${feelsLikeTemp}`}),
             },
           )
           if (updateActivity.status >= 200 && updateActivity.status <= 299) {

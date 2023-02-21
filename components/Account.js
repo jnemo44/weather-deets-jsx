@@ -60,9 +60,9 @@ export default function Account({ session }) {
 
       let { error } = await supabase.from('profiles').upsert(updates)
       if (error) throw error
-      alert('Profile updated!')
+      //alert('Profile updated!')
     } catch (error) {
-      alert('Error updating the data!')
+      //alert('Error updating the data!')
       console.log(error)
     } finally {
       setLoading(false)
@@ -84,14 +84,14 @@ export default function Account({ session }) {
   }
 
   return (
-    <div className="flex-col space-y-4">
-      <div className="flex justify-center">
+    <div>
+      {/* <div className="flex justify-center">
         <Image
           className="rounded-lg bg-base-100 shadow-xl"
           src={logo}
           alt="LelliWeather">
         </Image>
-      </div>
+      </div> */}
       {/* <div className="h-32">
         <Svg icon='logo'></Svg>
       </div> */}
@@ -113,7 +113,7 @@ export default function Account({ session }) {
                 <h2 className="card-title">Hello {stravaAccount.firstname}!</h2>
                 <p>You are connected to Strava as {stravaAccount.firstname} {stravaAccount.lastname}!</p>
                 <div className="card-actions justify-end">
-                  <button className="btn btn-error btn-sm" onClick={stravaDeauthHandler}>Disconnect</button>
+                  <button className="btn btn-primary" onClick={stravaDeauthHandler}>Disconnect</button>
                 </div>
               </div>
             </div>
@@ -174,16 +174,15 @@ export default function Account({ session }) {
             <span className="label-text-alt">Alt label</span>
           </label> */}
           </div>
-
           <div className="flex-col">
             <label className="label">
               <span className="label-text">Preview Description</span>
             </label>
             <div>
-              🌤️ Clouds 💨 Winds from NE 10{(units == 'Fahrenheit, miles/hour') || (units == 'Celsius, miles/hour') ? 'mph' : 'kph'} gusting 13{(units == 'Fahrenheit, miles/hour') || (units == 'Celsius, miles/hour') ? 'mph' : 'kph'}
+              🌤️ Clouds 💨 Winds from NE {(units?.includes("miles/hour") ? `${10}mph` : `${Math.round(10 * 1.609)}kph`)} gusting {(units?.includes("miles/hour") ? `${15}mph` : `${Math.round(15 * 1.609)}kph`)}
             </div>
             <div>
-              🌡️ Temp: 77{units == 'Fahrenheit, miles/hour' ? 'F' : 'C'}  💧 Dew Point: 55{units == 'Fahrenheit, miles/hour' ? 'F' : 'C'}  ✨ Felt Like: 75{units == 'Fahrenheit, miles/hour' ? 'F' : 'C'}
+              🌡️ Temp: {units?.includes("Fahrenheit") ? `${77}F` : `${Math.round((77 - 32) * 5 / 9)}C`}  💧 Dew Point: {units?.includes("Fahrenheit") ? `${55}F` : `${Math.round((55 - 32) * 5 / 9)}C`}  ✨ Felt Like: {units?.includes("Fahrenheit") ? `${75}F` : `${Math.round((75 - 32) * 5 / 9)}C`}
             </div>
           </div>
         </div>
