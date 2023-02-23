@@ -5,6 +5,12 @@ export default function Document() {
     <Html lang="en" >
       <div className="flex flex-col justify-between h-full min-h-screen">
       <Head />
+      <div className="navbar bg-primary text-primary-content">
+        <a className="btn btn-ghost normal-case text-xl">daisyUI</a>
+        <div className="navbar-end">
+    <a className="btn btn-primary">Login</a>
+  </div>
+      </div>
       <body className='mb-auto'>
         <Main />
         <NextScript />
