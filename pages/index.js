@@ -9,7 +9,7 @@ const Home = () => {
   const supabase = useSupabaseClient()
 
   return (
-    <div className="flex-col space-y-4 mb-10">
+    <div className="flex-col space-y-4 pb-10">
       <div className="flex justify-center">
         <Image
           className="mt-4 rounded-lg shadow-xl"
@@ -24,15 +24,17 @@ const Home = () => {
             supabaseClient={supabase}
             appearance={{
               theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#FFFFFF',
-                    brandAccent: '#C189B8',
-                    brandButtonText: 'black',
-                  }
-                }
-              }
+              // variables: {
+              //   default: {
+              //     colors: {
+              //       brand: '#FFFFFF',
+              //       brandAccent: '#C189B8',
+              //       brandButtonText: 'black',
+              //       // defaultButtonBackground: '#2e2e2e',
+              //       // defaultButtonBackgroundHover: '#3e3e3e',
+              //     }
+              //   }
+              // }
             }}
             // appearance={{
             //   style: {

@@ -84,18 +84,7 @@ export default function Account({ session }) {
   }
 
   return (
-    <div>
-      {/* <div className="flex justify-center">
-        <Image
-          className="rounded-lg bg-base-100 shadow-xl"
-          src={logo}
-          alt="LelliWeather">
-        </Image>
-      </div> */}
-      {/* <div className="h-32">
-        <Svg icon='logo'></Svg>
-      </div> */}
-      <div className="p-4 rounded-lg border-2 border-primary shadow-2xl">
+      <div className="bg-slate-200 p-4 rounded-lg border-2 border-primary shadow-2xl">
         <div className="pb-4">
           <h1 className="text-xl">Account Dashboard</h1>
           {/* <p className="mt-1 text-sm">
@@ -187,9 +176,6 @@ export default function Account({ session }) {
           </div>
         </div>
 
-        <div>
-
-        </div>
         <div className="pt-5">
           <div className="flex justify-end space-x-2">
             <button
@@ -209,6 +195,5 @@ export default function Account({ session }) {
           </div>
         </div>
       </div>
-    </div>
   )
 }
